@@ -1,0 +1,9 @@
+# Web 伺服器
+fastapi>=0.110
+uvicorn[standard]>=0.29
+
+# 前端互動
+gradio>=4.26         # 建議固定次版號，免得未來 breaking
+
+# 影像處理（gradio 也會裝 pillow，但顯式列出可讀性佳）
+pillow>=10.0

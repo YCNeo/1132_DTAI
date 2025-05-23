@@ -1,0 +1,30 @@
+# nginx/default.conf
+# 反向代理設定：把外部 80 端口的所有請求導向後端 FastAPI 服務
+
+# 定義 upstream（Docker 內部 DNS 可用 service name）
+upstream backend {
+    server food-constitution:7860;
+}
+
+server {
+    listen 80;
+    server_name _;          # 接受任何主機名稱
+    charset utf-8;
+
+    # --- 主路由 ---
+    location / {
+        proxy_pass         http://backend;
+        proxy_set_header   Host              $host;
+        proxy_set_header   X-Real-IP         $remote_addr;
+        proxy_set_header   X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header   X-Forwarded-Proto $scheme;
+
+        # 支援 WebSocket／Server-Sent Events
+        proxy_http_version 1.1;
+        proxy_set_header   Upgrade       $http_upgrade;
+        proxy_set_header   Connection    "upgrade";
+    }
+
+    # --- 可選：如果未來要快取靜態檔，可在這裡加 rules ---
+    # location /static/ { ... }
+}

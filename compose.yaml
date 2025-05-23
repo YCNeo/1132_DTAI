@@ -1,0 +1,43 @@
+services:
+  # ------------------------------------------------------------------
+  # 1. FastAPI + Gradio 服務（可即時熱載）
+  # ------------------------------------------------------------------
+  food-constitution:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: food-constitution
+    # ▶  改用 --reload；Uvicorn 會 watch /app 內所有 .py/.json…
+    # command: >
+    #   uvicorn app:app --host 0.0.0.0 --port 7860 --reload
+    volumes:
+      - ./:/app
+    # expose:
+    #   - "7860"
+    ports:
+      - "7860:7860" # 對外開放 7860
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - app-net
+
+  # ------------------------------------------------------------------
+  # 2. Nginx 反向代理（設定不變）
+  # --------------------------- ---------------------------------------
+  # nginx:
+  #   image: nginx:1.25-alpine # 使用官方輕量映像
+  #   container_name: food-constitution-nginx
+  #   ports:
+  #     - "80:80" # 對外只開 80；需要 HTTPS 時自行掛 443
+  #   volumes:
+  #     - ./nginx/default:/etc/nginx/sites-available/default:ro
+  #   depends_on:
+  #     - food-constitution
+  #   restart: unless-stopped
+  #   networks:
+  #     - app-net
+
+networks:
+  app-net:
+    driver: bridge
